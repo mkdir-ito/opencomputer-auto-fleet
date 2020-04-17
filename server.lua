@@ -7,12 +7,13 @@ local keyboard      = require("keyboard")
 local filesystem    = require("filesystem")
 local m = component.modem
 local g = component.gpu
+local width, height = g.maxResolution()
 
 local robots = {}
 
 function modemMessage(_, receiverAddress, senderAddress, port, distance, from, command, serialData)
     if command == 'addRobot' then
-        robots[senderAddress] = {name='test'}
+        robots[from] = {name='test'}
     end
 end
 event.listen("modem_message", modemMessage)
@@ -24,22 +25,31 @@ end
 m.open(244)
 m.setStrength(16)
 function main()
-    term.clear()
-    print('Robots: ')
-    for k,v in pairs(tab) do
-        print(' --'+v.name)
+    for row=1,height-1 do
+        for column=1,width do
+            g.set(column,line," ")
+        end
     end
-    local width, height = g.maxResolution()
-    print('Max Height: ' + height)
-    print('Max Height: ' + width)
+    g.set(1,1,'Robots: ')
+    local row = 2
+    for k,v in pairs(robots) do
+        g.set(1,row,' --' .. v.name)
+        row = row + 1
+    end
 end
-local timer = event.timer(1, main, math.huge)
+local timer = event.timer(.1, main, math.huge)
 
 function interruptHandler()
     event.cancel(timer)
     term.clear()
 end
 event.listen("interrupted", interruptHandler)
+
+while true do
+    term.(1,height)
+    term.read({nowrap=true})
+    term.clearLine()
+end
 
 --event.listen(event: string, callback: function): boolean
 -- if "interrupted" then write to disk and exit
