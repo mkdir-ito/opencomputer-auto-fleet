@@ -6,28 +6,40 @@ local internet      = require("internet")
 local keyboard      = require("keyboard")
 local filesystem    = require("filesystem")
 local m = component.modem
-local t = component.term
+local g = component.gpu
 
 local robots = {}
 
-function modemMessage(receiverAddress, senderAddress, port, distance, from, command, serialData)
+function modemMessage(_, receiverAddress, senderAddress, port, distance, from, command, serialData)
     if command == 'addRobot' then
         robots[senderAddress] = {name='test'}
     end
 end
 event.listen("modem_message", modemMessage)
 
+function keyUp(_, keyboardAddress, char, code, playerName)
+
+end
+
 m.open(244)
 m.setStrength(16)
 function main()
     term.clear()
-    print('Robots: \n')
+    print('Robots: ')
     for k,v in pairs(tab) do
-        print(v.name)
+        print(' --'+v.name)
     end
+    local width, height = g.maxResolution()
+    print('Max Height: ' + height)
+    print('Max Height: ' + width)
 end
+local timer = event.timer(1, main, math.huge)
 
-event.timer(1, main)
+function interruptHandler()
+    event.cancel(timer)
+    term.clear()
+end
+event.listen("interrupted", interruptHandler)
 
 --event.listen(event: string, callback: function): boolean
 -- if "interrupted" then write to disk and exit

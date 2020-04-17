@@ -5,4 +5,4 @@ local filesystem    = require("filesystem")
 local m = component.modem
 
 m.setStrength(16)
-m.broadcast(244, nil, "addRobot", nil)
+m.broadcast(244, m.address, "addRobot", nil)
