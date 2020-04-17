@@ -5,6 +5,7 @@ local serialization = require("serialization")
 local internet      = require("internet")
 local keyboard      = require("keyboard")
 local filesystem    = require("filesystem")
+local thread        = require("thread")
 local m = component.modem
 local g = component.gpu
 local width, height = g.maxResolution()
@@ -39,17 +40,23 @@ function main()
 end
 local timer = event.timer(.1, main, math.huge)
 
+local userThread = thread.create(function()
+    while true do
+        term.setCursor(1,height-1)
+        local command = term.read({nowrap=true})
+        event.push("command", command)
+        term.clearLine()
+    end
+end)
+
 function interruptHandler()
+    userThread:suspend()
     event.cancel(timer)
     term.clear()
 end
 event.listen("interrupted", interruptHandler)
 
-while true do
-    term.(1,height)
-    term.read({nowrap=true})
-    term.clearLine()
-end
+
 
 --event.listen(event: string, callback: function): boolean
 -- if "interrupted" then write to disk and exit
