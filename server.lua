@@ -22,10 +22,10 @@ event.listen("modem_message", modemMessage)
 
 function commandHandler(command)
     if command:find('^rename +%w +%w\n$') ~= nil then 
-        local groups = command:gmatch('^rename (+%w) (+%w)\n$')
+        orig, new = command:match('^rename (+%w) (+%w)\n$')
         for k,v in pairs(robots) do
-            if v.name == groups[1] then
-                robots[k][v].name = groups[2]
+            if v.name == orig then
+                robots[k].name = new
             end
         end
     --elseif command:find() != nil then 
@@ -38,7 +38,7 @@ event.listen("command", commandHandler)
 m.open(244)
 m.setStrength(16)
 function main()
-    g.fill(1,1,height-2, width, " ")
+    g.fill(1,1, width, height-3,  " ")
     g.set(1,1,'Robots: ')
     local row = 2
     for k,v in pairs(robots) do
