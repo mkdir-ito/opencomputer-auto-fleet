@@ -20,7 +20,7 @@ function modemMessage(_, receiverAddress, senderAddress, port, distance, from, c
 end
 event.listen("modem_message", modemMessage)
 
-function commandHandler("command", command)
+function commandHandler(command)
     if command:find('^rename +%w +%w\n$') != nil then 
         local groups = command:gmatch('^rename (+%w) (+%w)\n$')
         for k,v in pairs(robots) do
