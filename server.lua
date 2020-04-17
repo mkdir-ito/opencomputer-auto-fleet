@@ -6,6 +6,7 @@ local internet      = require("internet")
 local keyboard      = require("keyboard")
 local filesystem    = require("filesystem")
 local thread        = require("thread")
+local uuid          = require("uuid")
 local m = component.modem
 local g = component.gpu
 local width, height = g.maxResolution()
@@ -14,27 +15,38 @@ local robots = {}
 
 function modemMessage(_, receiverAddress, senderAddress, port, distance, from, command, serialData)
     if command == 'addRobot' then
-        robots[from] = {name='test'}
+        robots[from] = {name=string.sub(uuid.next(),1,4)}
     end
 end
 event.listen("modem_message", modemMessage)
 
-function keyUp(_, keyboardAddress, char, code, playerName)
-
+function commandHandler("command", command)
+    if command:find('^rename +%w +%w\n$') != nil then 
+        local groups = command:gmatch('^rename (+%w) (+%w)\n$')
+        for k,v in pairs(robots) do
+            if v.name == groups[1] then
+                robots[k][v].name = groups[2]
+            end
+        end
+    --elseif command:find() != nil then 
+    else 
+        --
+    end
 end
+event.listen("command", commandHandler)
 
 m.open(244)
 m.setStrength(16)
 function main()
     g.fill(1,1,height-2, width, " ")
-    print(g.set(1,1,'Robots: '))
+    g.set(1,1,'Robots: ')
     local row = 2
     for k,v in pairs(robots) do
         g.set(1,row,' --' .. v.name)
         row = row + 1
     end
 end
-local timer = event.timer(.1, main, math.huge)
+local timer = event.timer(.25, main, math.huge)
 
 local userThread = thread.create(function()
     while true do
@@ -92,9 +104,5 @@ event.listen("interrupted", interruptHandler)
 --f:write(meesage)
 --f:close()
 --f:read("*a")
-
---tier 2
---max width  50
---max height 16
 
 --wireless tier 2 max x and y diff is 260
