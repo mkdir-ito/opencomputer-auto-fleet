@@ -26,12 +26,8 @@ end
 m.open(244)
 m.setStrength(16)
 function main()
-    for row=1,height-1 do
-        for column=1,width do
-            g.set(column,line," ")
-        end
-    end
-    g.set(1,1,'Robots: ')
+    g.fill(1,1,height-2, width, " ")
+    print(g.set(1,1,'Robots: '))
     local row = 2
     for k,v in pairs(robots) do
         g.set(1,row,' --' .. v.name)
@@ -43,9 +39,9 @@ local timer = event.timer(.1, main, math.huge)
 local userThread = thread.create(function()
     while true do
         term.setCursor(1,height-1)
+        term.clearLine()
         local command = term.read({nowrap=true})
         event.push("command", command)
-        term.clearLine()
     end
 end)
 
